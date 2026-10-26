@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 defaults:
   run:
@@ -47,3 +47,17 @@ jobs:
           path: build/libs/turboboost-*.jar
           if-no-files-found: error
           retention-days: 30
+      - name: Publish public download
+        if: github.ref == 'refs/heads/arena/a0cf2940-turbo'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_tag="turboboost-v1.0.0"
+          if gh release view "$release_tag" >/dev/null 2>&1; then
+            gh release upload "$release_tag" build/libs/turboboost-1.0.0.jar --clobber
+          else
+            gh release create "$release_tag" build/libs/turboboost-1.0.0.jar \
+              --target "$GITHUB_SHA" \
+              --title "TurboBoost 1.0.0 — Minecraft 1.20.1 Forge" \
+              --notes-file README.md
+          fi
