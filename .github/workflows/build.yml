@@ -1,4 +1,4 @@
-name: Build mod
+name: Build NeoForge mod
 
 on:
   push:
@@ -17,34 +17,33 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out sources
+      - name: Checkout
         uses: actions/checkout@v5
-      - name: Set up Java 17
+      - name: Set up Java 21
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 17
-      - name: Set up Gradle
+          java-version: 21
+      - name: Set up Gradle 9.2.1
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 8.8
-      - name: Build mod jar
-        id: build
+          gradle-version: 9.2.1
+      - name: Build mod
         run: |
           set +e
           gradle --no-daemon --console=plain clean build 2>&1 | tee /tmp/turboboost-build.log
           result=${PIPESTATUS[0]}
           if [ "$result" -ne 0 ]; then
-            tail -n 25 /tmp/turboboost-build.log | while IFS= read -r line; do
+            tail -n 30 /tmp/turboboost-build.log | while IFS= read -r line; do
               echo "::error file=build.gradle,line=1::$line"
             done
             exit "$result"
           fi
-      - name: Upload mod jar
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: turboboost-minecraft-1.20.1-forge
-          path: build/libs/turboboost-*.jar
+          name: turboboost-neoforge-1.21.1
+          path: build/libs/turboboost-neoforge-1.21.1-*.jar
           if-no-files-found: error
           retention-days: 30
       - name: Publish public download
@@ -52,12 +51,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          release_tag="turboboost-v1.1.0"
+          release_tag="turboboost-neoforge-1.21.1-v2.0.0"
+          jar="build/libs/turboboost-neoforge-1.21.1-2.0.0.jar"
           if gh release view "$release_tag" >/dev/null 2>&1; then
-            gh release upload "$release_tag" build/libs/turboboost-1.1.0.jar --clobber
+            gh release upload "$release_tag" "$jar" --clobber
           else
-            gh release create "$release_tag" build/libs/turboboost-1.1.0.jar \
+            gh release create "$release_tag" "$jar" \
               --target "$GITHUB_SHA" \
-              --title "TurboBoost 1.1.0 — Minecraft 1.20.1 Forge" \
+              --title "TurboBoost Ultra 2.0.0 — NeoForge 1.21.1" \
               --notes-file README.md
           fi

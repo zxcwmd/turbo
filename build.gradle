@@ -1,73 +1,71 @@
 plugins {
-    id 'java'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
-group = 'dev.turbo'
-version = '1.1.0'
-base.archivesName = 'turboboost'
+version = mod_version
+group = mod_group_id
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+base {
+    archivesName = 'turboboost-neoforge-1.21.1'
 }
 
-minecraft {
-    mappings channel: 'official', version: '1.20.1'
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = neo_version
 
     runs {
-        configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'info'
-            mods {
-                turboboost {
-                    source sourceSets.main
-                }
-            }
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+        configureEach {
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
 
-        client {}
-        server {}
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
     }
 }
 
-repositories {
-    mavenCentral()
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
 }
 
-dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
-}
-
-processResources {
-    def replaceProperties = [
-            mod_id: 'turboboost',
-            mod_name: 'TurboBoost',
-            mod_version: project.version,
-            mod_authors: 'TurboBoost contributors',
-            mod_description: 'Adaptive client-side performance optimizations for Minecraft 1.20.1.'
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_version            : mod_version,
+            mod_license            : mod_license
     ]
     inputs.properties replaceProperties
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties
-    }
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
 }
 
-jar {
-    manifest {
-        attributes([
-                'Specification-Title'     : 'TurboBoost',
-                'Specification-Vendor'    : 'TurboBoost contributors',
-                'Specification-Version'   : '1',
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.version,
-                'Implementation-Vendor'   : 'TurboBoost contributors'
-        ])
-    }
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
 }
 
-// Keep the built jar reproducible and avoid shipping development metadata.
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
     reproducibleFileOrder = true
