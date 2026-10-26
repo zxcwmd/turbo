@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+group = 'dev.turbo'
+version = '1.0.0'
+base.archivesName = 'turboboost'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            mods {
+                turboboost {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {}
+        server {}
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
+}
+
+processResources {
+    def replaceProperties = [
+            mod_id: 'turboboost',
+            mod_name: 'TurboBoost',
+            mod_version: project.version,
+            mod_authors: 'TurboBoost contributors',
+            mod_description: 'Adaptive client-side performance optimizations for Minecraft 1.20.1.'
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                'Specification-Title'     : 'TurboBoost',
+                'Specification-Vendor'    : 'TurboBoost contributors',
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.version,
+                'Implementation-Vendor'   : 'TurboBoost contributors'
+        ])
+    }
+}
+
+// Keep the built jar reproducible and avoid shipping development metadata.
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
