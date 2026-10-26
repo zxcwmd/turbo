@@ -1,7 +1,7 @@
 package dev.turbo.turboboost;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.particles.ParticleStatus;
+import net.minecraft.client.ParticleStatus;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
