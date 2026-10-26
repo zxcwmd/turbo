@@ -1,5 +1,6 @@
 package dev.turbo.turboboost;
 
+import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -16,6 +17,10 @@ public final class ClientOptimizer {
     private int goodSamples;
     private int preferredRenderDistance;
     private ParticleStatus preferredParticles;
+    private CloudStatus preferredCloudStatus;
+    private double preferredEntityDistanceScaling;
+    private int preferredBiomeBlendRadius;
+    private boolean preferredAmbientOcclusion;
     private boolean preferredEntityShadows;
     private boolean initialized;
 
@@ -79,6 +84,10 @@ public final class ClientOptimizer {
     private void rememberUserOptions() {
         preferredRenderDistance = minecraft.options.renderDistance().get();
         preferredParticles = minecraft.options.particles().get();
+        preferredCloudStatus = minecraft.options.cloudStatus().get();
+        preferredEntityDistanceScaling = minecraft.options.entityDistanceScaling().get();
+        preferredBiomeBlendRadius = minecraft.options.biomeBlendRadius().get();
+        preferredAmbientOcclusion = minecraft.options.ambientOcclusion().get();
         preferredEntityShadows = minecraft.options.entityShadows().get();
         initialized = true;
     }
@@ -100,6 +109,18 @@ public final class ClientOptimizer {
         if (ClientConfig.DISABLE_ENTITY_SHADOWS.get()) {
             minecraft.options.entityShadows().set(false);
         }
+        if (ClientConfig.DISABLE_CLOUDS.get()) {
+            minecraft.options.cloudStatus().set(CloudStatus.OFF);
+        }
+        if (ClientConfig.DISABLE_AMBIENT_OCCLUSION.get()) {
+            minecraft.options.ambientOcclusion().set(false);
+        }
+        if (ClientConfig.REDUCE_ENTITY_DISTANCE.get()) {
+            minecraft.options.entityDistanceScaling().set(Math.min(preferredEntityDistanceScaling, 0.5));
+        }
+        if (ClientConfig.REDUCE_BIOME_BLEND.get()) {
+            minecraft.options.biomeBlendRadius().set(0);
+        }
     }
 
     private void restoreLowCostOptions() {
@@ -108,6 +129,18 @@ public final class ClientOptimizer {
         }
         if (ClientConfig.DISABLE_ENTITY_SHADOWS.get()) {
             minecraft.options.entityShadows().set(preferredEntityShadows);
+        }
+        if (ClientConfig.DISABLE_CLOUDS.get()) {
+            minecraft.options.cloudStatus().set(preferredCloudStatus);
+        }
+        if (ClientConfig.DISABLE_AMBIENT_OCCLUSION.get()) {
+            minecraft.options.ambientOcclusion().set(preferredAmbientOcclusion);
+        }
+        if (ClientConfig.REDUCE_ENTITY_DISTANCE.get()) {
+            minecraft.options.entityDistanceScaling().set(preferredEntityDistanceScaling);
+        }
+        if (ClientConfig.REDUCE_BIOME_BLEND.get()) {
+            minecraft.options.biomeBlendRadius().set(preferredBiomeBlendRadius);
         }
     }
 
@@ -129,6 +162,10 @@ public final class ClientOptimizer {
         }
         minecraft.options.renderDistance().set(preferredRenderDistance);
         minecraft.options.particles().set(preferredParticles);
+        minecraft.options.cloudStatus().set(preferredCloudStatus);
+        minecraft.options.entityDistanceScaling().set(preferredEntityDistanceScaling);
+        minecraft.options.biomeBlendRadius().set(preferredBiomeBlendRadius);
+        minecraft.options.ambientOcclusion().set(preferredAmbientOcclusion);
         minecraft.options.entityShadows().set(preferredEntityShadows);
         lowSamples = 0;
         goodSamples = 0;

@@ -13,6 +13,10 @@ public final class ClientConfig {
     public static final ForgeConfigSpec.IntValue RECOVERY_STEP_TICKS;
     public static final ForgeConfigSpec.BooleanValue REDUCE_PARTICLES;
     public static final ForgeConfigSpec.BooleanValue DISABLE_ENTITY_SHADOWS;
+    public static final ForgeConfigSpec.BooleanValue DISABLE_CLOUDS;
+    public static final ForgeConfigSpec.BooleanValue DISABLE_AMBIENT_OCCLUSION;
+    public static final ForgeConfigSpec.BooleanValue REDUCE_ENTITY_DISTANCE;
+    public static final ForgeConfigSpec.BooleanValue REDUCE_BIOME_BLEND;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -45,6 +49,18 @@ public final class ClientConfig {
         DISABLE_ENTITY_SHADOWS = builder
                 .comment("Temporarily disable entity shadows when FPS remains low.")
                 .define("disableEntityShadows", true);
+        DISABLE_CLOUDS = builder
+                .comment("Temporarily hide clouds when FPS remains low.")
+                .define("disableClouds", true);
+        DISABLE_AMBIENT_OCCLUSION = builder
+                .comment("Temporarily disable ambient occlusion when FPS remains low.")
+                .define("disableAmbientOcclusion", true);
+        REDUCE_ENTITY_DISTANCE = builder
+                .comment("Temporarily reduce the entity render-distance multiplier when FPS remains low.")
+                .define("reduceEntityDistance", true);
+        REDUCE_BIOME_BLEND = builder
+                .comment("Temporarily reduce biome color blending when FPS remains low.")
+                .define("reduceBiomeBlend", true);
 
         builder.pop();
         SPEC = builder.build();

@@ -52,12 +52,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          release_tag="turboboost-v1.0.0"
+          release_tag="turboboost-v1.1.0"
           if gh release view "$release_tag" >/dev/null 2>&1; then
-            gh release upload "$release_tag" build/libs/turboboost-1.0.0.jar --clobber
+            gh release upload "$release_tag" build/libs/turboboost-1.1.0.jar --clobber
           else
-            gh release create "$release_tag" build/libs/turboboost-1.0.0.jar \
+            gh release create "$release_tag" build/libs/turboboost-1.1.0.jar \
               --target "$GITHUB_SHA" \
-              --title "TurboBoost 1.0.0 — Minecraft 1.20.1 Forge" \
+              --title "TurboBoost 1.1.0 — Minecraft 1.20.1 Forge" \
               --notes-file README.md
           fi
